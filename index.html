@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title></title>
+		<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	</head>
+	<style type="text/css">
+		#tbody .weektr {
+			text-align: center;
+			height: 40px;
+			min-height: 40px;
+			background: #ddd;
+			font-weight: bold;
+		}
+
+		#tbody tr {
+			min-height: 100px;
+			height: 100px;
+			background: #fff;
+		}
+
+		#tbody td {
+			max-width: 110px;
+			min-width: 110px;
+			border-right: 1px solid #c4c4c4;
+			border-bottom: 1px solid #c4c4c4;
+		}
+
+		#tbody td.week_data {
+			vertical-align: top;
+			padding: 1px 1px 6px 1px;
+			text-align: center;
+		}
+
+		.week_data .calendar_pb {
+			vertical-align: top;
+			text-align: left;
+			font-weight: bold;
+			font-size: 14px;
+			padding: 6px 10px;
+		}
+
+		.week_data .calendar_pb i {
+			text-align: right;
+			float: right;
+			font-size: 12px;
+			font-weight: normal;
+			color: #a1a1a1;
+			font-style: normal;
+		}
+
+		.dataTable {
+			border-collapse: collapse;
+		}
+
+		#tbody td.week_data div.pbrymc {
+			padding-top: 6px;
+			display: inline-block;
+			color: #000;
+		}
+
+		.pbrymc span {
+			display: inline-block;
+			font-size: 12px;
+		}
+	</style>
+	<body>
+		<div class="table-content">
+			<table class="dataTable" width="100%">
+				<tbody id="tbody">
+				</tbody>
+
+			</table>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var week = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
+		//假数据
+		var data = [{
+				pbrq: "2020-09-03",
+				rybh: "R11991333,K5481,K6070,K3806,K3754,R11991334",
+				rymc: "李婷,嘎娃,张磊,王立明,王红霞,马晓乐",
+				wdgrybh: "R11991333-旷工",
+				wdgrymc: "李婷-旷工"
+			},
+			{
+				pbrq: "2020-09-04",
+				rybh: "R11991333,K5481,K6070,K3806,K3754,R11991334",
+				rymc: "李婷,嘎娃,张磊,王立明,王红霞,马晓乐",
+				wdgrybh: "K5481-事假",
+				wdgrymc: "嘎娃-事假"
+			},
+			{
+				pbrq: "2020-09-07",
+				rybh: "R11991333,K5481,K6070,K3806,K3754,R11991334",
+				rymc: "李婷,嘎娃,张磊,王立明,王红霞,马晓乐",
+				wdgrybh: "K5481-旷工,K6070-病假",
+				wdgrymc: "嘎娃-旷工,张磊-病假"
+			},
+			{
+				pbrq: "2020-09-08",
+				rybh: "R11991333,K5481,K6070,K3806,K3754,R11991334",
+				rymc: "李婷,嘎娃,张磊,王立明,王红霞,马晓乐",
+			}
+		];
+
+		//生成日历表格
+		querylist();
+
+		//在表格上展示数据
+		for (var k = 0; k < data.length; k++) {
+			var rymclength = data[k].rymc.split(",");
+			var rybhlength = data[k].rybh.split(",");
+			var rym_num = rymclength.length;
+			$("#" + data[k].pbrq).attr("value", data[k].rybh);
+			$("#" + data[k].pbrq).attr("pbqk", data[k].pbqk);
+			var time = "<span>" + data[k].pbrq + "</span>";
+			if (rym_num > 3) {
+				var str = "";
+				for (var h = 0; h < rym_num; h++) {
+					if ((h + 1) % 3 == 0) {
+						str += "<span class=" + rybhlength[h] + " rybh=" + rybhlength[h] + ">" + rymclength[h] + "</span><br>";
+					} else {
+						str += "<span class=" + rybhlength[h] + " rybh=" + rybhlength[h] + ">" + rymclength[h] + "&nbsp;</span>";
+					}
+				}
+				$("#" + data[k].pbrq).find('div.pbrymc').html(str);
+			} else {
+				var str_3 = "";
+				for (var w = 0; w < rym_num; w++) {
+					if ((w + 1) == rym_num) {
+						str_3 += "<span class=" + rybhlength[w] + " rybh=" + rybhlength[w] + ">" + rymclength[w] + "</span>";
+					} else {
+						str_3 += "<span class=" + rybhlength[w] + " rybh=" + rybhlength[w] + ">" + rymclength[w] + "&nbsp;</span>";
+					}
+				}
+				$("#" + data[k].pbrq).find('div.pbrymc').html(str_3);
+			}
+		}
+
+		//添加旷工变色 加title属性
+		for (var w = 0; w < data.length; w++) {
+			if (data[w].wdgrybh) {
+				var kgrylist = data[w].wdgrybh;
+				kgrylist = kgrylist.split(',');
+				for (var z = 0; z < kgrylist.length; z++) {
+					var kgrylist2 = kgrylist[z].toString();
+					var kgryrybh = kgrylist2.split("-");
+					if ($("." + kgryrybh[0]).attr("rybh") == kgryrybh[0]) {
+						$("#" + data[w].pbrq).find("." + kgryrybh[0]).css("color", "red");
+						$("#" + data[w].pbrq).find("." + kgryrybh[0]).css("cursor", "pointer");
+						$("#" + data[w].pbrq).find("." + kgryrybh[0]).attr("title", kgryrybh[1]);
+					}
+				}
+			}
+		}
+
+		//生成无数据的日历版本的Table
+		function querylist() {
+			var yyzbh = $("#yyzbh").val();
+			var yyzmc = $("#yyzbh").find("option:selected").text();
+			//动态填写表头文字
+			var startTime = '2020-09';
+			var starttime = startTime.split("-");
+			var startstr = starttime[0] + "年" + starttime[1] + "月";
+			var theadname = startstr + yyzmc + "排班表";
+			$("#tabletitle").html(theadname);
+			//最后一个参数为0,意为获取2018年10月一共多少天
+			var day = new Date(starttime[0], starttime[1], 0);
+			var now_week_total = day.getDate();
+			//当前月第一天是星期几
+			var strday = starttime[1] + "/1/" + starttime[0];
+			var weekday = new Date(strday).getDay();
+			if (weekday == 0) {
+				weekday = 6;
+			} else {
+				weekday = weekday - 1;
+			}
+			$('#fzpbCx').show();
+			$('#fzpbDel').hide();
+			flage = true;
+			//生成table表格日历表头星期
+			var strweek = "";
+			var strlist = ";"
+			for (var j = 0; j < week.length; j++) {
+				strweek += "<td>" + week[j] + "</td>";
+			}
+			strlist = "<tr class='weektr'>" + strweek + "</tr>"
+			$("#tbody").empty();
+			$("#tbody").append(strlist);
+			//生成阳历阴历表格
+			var now_day = 1;
+			var now_week_num = now_week_total + weekday;
+			var trs = [];
+			var trDom = $('<tr></tr>');
+			for (var i = 0; i < now_week_num; i++) {
+				if (i < weekday) {
+					$('<td></td>').appendTo(trDom);
+					trs.push(trDom);
+				} else if (i % 7 == 0) {
+					trDom = $('<tr></tr>');
+					$('<td class="week_data"  id=' + starttime[0] + '-' + starttime[1] + "-" + (now_day < 10 ? '0' + now_day : now_day) +
+						'><div class="calendar_pb">' + now_day + '<i>' + toLunar(starttime[0], starttime[1], now_day) +
+						'</i></div><div class="pbrymc"></div></td>').appendTo(trDom);
+					trs.push(trDom);
+					now_day++;
+				} else {
+					$('<td class="week_data" id=' + starttime[0] + '-' + starttime[1] + "-" + (now_day < 10 ? '0' + now_day : now_day) +
+						'><div class="calendar_pb">' + now_day + '<i>' + toLunar(starttime[0], starttime[1], now_day) +
+						'</i></div><div class="pbrymc"></div></td>').appendTo(trDom);
+					trs.push(trDom);
+					now_day++;
+				}
+			}
+			if (!(now_week_num % 7 == 0)) {
+				var surplus = now_week_num % 7;
+				if (!(surplus == 0)) {
+					for (var m = 0; m < (7 - surplus); m++) {
+						$('<td></td>').appendTo(trDom);
+						trs.push(trDom);
+					}
+				}
+
+			}
+			for (var j = 0; j < trs.length; j++) {
+				$(trs[j]).appendTo($('#tbody'));
+			}
+			$(".table-content").css("border", "1px solid #ddd");
+
+			if ($("#updBtn").html() == "保存") {
+				$("#tbody td.week_data").addClass("active");
+			} else {
+				$("#tbody td.week_data").removeClass("active");
+			}
+		}
+
+		//阴历与阳历之间的相互转化
+		function toLunar(solarYear, solarMonth, solarDay) {
+			//定义全局变量
+			var CalendarData = new Array(100);
+			var madd = new Array(12);
+			var tgString = "甲乙丙丁戊己庚辛壬癸";
+			var dzString = "子丑寅卯辰巳午未申酉戌亥";
+			var numString = "一二三四五六七八九十";
+			var monString = "正二三四五六七八九十冬腊";
+			var weekString = "日一二三四五六";
+			var sx = "鼠牛虎兔龙蛇马羊猴鸡狗猪";
+			var cYear, cMonth, cDay, TheDate;
+			CalendarData = new Array(
+				0xa4b,
+				0x5164b,
+				0x6a5,
+				0x6d4,
+				0x415b5,
+				0x2b6,
+				0x957,
+				0x2092f,
+				0x497,
+				0x60c96,
+				0xd4a,
+				0xea5,
+				0x50da9,
+				0x5ad,
+				0x2b6,
+				0x3126e,
+				0x92e,
+				0x7192d,
+				0xc95,
+				0xd4a,
+				0x61b4a,
+				0xb55,
+				0x56a,
+				0x4155b,
+				0x25d,
+				0x92d,
+				0x2192b,
+				0xa95,
+				0x71695,
+				0x6ca,
+				0xb55,
+				0x50ab5,
+				0x4da,
+				0xa5b,
+				0x30a57,
+				0x52b,
+				0x8152a,
+				0xe95,
+				0x6aa,
+				0x615aa,
+				0xab5,
+				0x4b6,
+				0x414ae,
+				0xa57,
+				0x526,
+				0x31d26,
+				0xd95,
+				0x70b55,
+				0x56a,
+				0x96d,
+				0x5095d,
+				0x4ad,
+				0xa4d,
+				0x41a4d,
+				0xd25,
+				0x81aa5,
+				0xb54,
+				0xb6a,
+				0x612da,
+				0x95b,
+				0x49b,
+				0x41497,
+				0xa4b,
+				0xa164b,
+				0x6a5,
+				0x6d4,
+				0x615b4,
+				0xab6,
+				0x957,
+				0x5092f,
+				0x497,
+				0x64b,
+				0x30d4a,
+				0xea5,
+				0x80d65,
+				0x5ac,
+				0xab6,
+				0x5126d,
+				0x92e,
+				0xc96,
+				0x41a95,
+				0xd4a,
+				0xda5,
+				0x20b55,
+				0x56a,
+				0x7155b,
+				0x25d,
+				0x92d,
+				0x5192b,
+				0xa95,
+				0xb4a,
+				0x416aa,
+				0xad5,
+				0x90ab5,
+				0x4ba,
+				0xa5b,
+				0x60a57,
+				0x52b,
+				0xa93,
+				0x40e95
+			);
+			madd[0] = 0;
+			madd[1] = 31;
+			madd[2] = 59;
+			madd[3] = 90;
+			madd[4] = 120;
+			madd[5] = 151;
+			madd[6] = 181;
+			madd[7] = 212;
+			madd[8] = 243;
+			madd[9] = 273;
+			madd[10] = 304;
+			madd[11] = 334;
+
+			function GetBit(m, n) {
+				return (m >> n) & 1;
+			}
+			//农历转换
+			function e2c() {
+				TheDate =
+					arguments.length != 3 ?
+					new Date() :
+					new Date(arguments[0], arguments[1], arguments[2]);
+				var total, m, n, k;
+				var isEnd = false;
+				var tmp = TheDate.getYear();
+				if (tmp < 1900) {
+					tmp += 1900;
+				}
+				total =
+					(tmp - 1921) * 365 +
+					Math.floor((tmp - 1921) / 4) +
+					madd[TheDate.getMonth()] +
+					TheDate.getDate() -
+					38;
+				if (TheDate.getYear() % 4 == 0 && TheDate.getMonth() > 1) {
+					total++;
+				}
+				for (m = 0;; m++) {
+					k = CalendarData[m] < 0xfff ? 11 : 12;
+					for (n = k; n >= 0; n--) {
+						if (total <= 29 + GetBit(CalendarData[m], n)) {
+							isEnd = true;
+							break;
+						}
+						total = total - 29 - GetBit(CalendarData[m], n);
+					}
+					if (isEnd) break;
+				}
+				cYear = 1921 + m;
+				cMonth = k - n + 1;
+				cDay = total;
+				if (k == 12) {
+					if (cMonth == Math.floor(CalendarData[m] / 0x10000) + 1) {
+						cMonth = 1 - cMonth;
+					}
+					if (cMonth > Math.floor(CalendarData[m] / 0x10000) + 1) {
+						cMonth--;
+					}
+				}
+			}
+
+			function GetcDateString() {
+				var tmp = "";
+				//返回值加上月 例如 六月十六
+				// if (cMonth < 1) {
+				// tmp += "(闰)";
+				//   tmp += monString.charAt(-cMonth - 1);
+				// } else {
+				//   tmp += monString.charAt(cMonth - 1);
+				// }
+				// tmp += "月";
+				tmp += cDay < 11 ? "初" : cDay < 20 ? "十" : cDay < 30 ? "廿" : "三十";
+				if (cDay % 10 != 0 || cDay == 10) {
+					tmp += numString.charAt((cDay - 1) % 10);
+				} else if (cDay == 20) {
+					tmp = "二十";
+				}
+				return tmp;
+			}
+			solarMonth = parseInt(solarMonth) > 0 ? solarMonth - 1 : 11;
+			e2c(solarYear, solarMonth, solarDay);
+			return GetcDateString();
+		}
+	</script>
+</html>
